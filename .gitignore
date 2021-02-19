@@ -2,7 +2,10 @@
 credentials.py
 sandpit.py
 notes.md
-*.py
+htmldata.py
+setup.py
+tests/
+MANIFEST.in
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

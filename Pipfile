@@ -12,6 +12,7 @@ selenium = "*"
 bs4 = "*"
 click = "*"
 pypandoc = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

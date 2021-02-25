@@ -1,4 +1,5 @@
 import time
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -22,6 +23,7 @@ class GemBot:
     def __init__(self, data, open_access, guest_edited):
         self.bot = webdriver.Chrome(
             options=chrome_options,
+            # switch to driver/chromedriver.exe with sys path append
             executable_path=r"C:\Users\arondavidson\AppData\Local\Programs\Python\Python37\chromedriver.exe"
         )
         self.data = data
@@ -120,29 +122,47 @@ class GemBot:
             campaign_id = bot.find_element(
                 By.ID, 'inspiration_campaign_campaign_id')
             campaign_id.clear()
+            time.sleep(1)
             campaign_id.send_keys(article['campaign_id'])
+            time.sleep(1)
 
             if article['asset_id']:
                 asset_id = bot.find_element(
                     By.ID, 'inspiration_campaign_asset_id')
-                asset_id.send_keys(article['asset_id'])
                 asset_id.clear()
+                time.sleep(1)
+                asset_id.send_keys(article['asset_id'])
+                time.sleep(1)
             name = bot.find_element(By.ID, 'inspiration_campaign_title')
             name.clear()
+            time.sleep(1)
             name.send_keys(article['article_title'])
+            time.sleep(1)
             desc = bot.find_element(By.ID, 'inspiration_campaign_description')
             desc.clear()
+            time.sleep(1)
             desc.send_keys(article['article_desc'])
+            time.sleep(2)
 
             # click open access
             if self.open_access:
                 bot.find_element(
                     By.ID, 'inspiration_campaign_open_access').click()
+                time.sleep(1)
             # return a list of open access links
             # article_link mixed with campaign id and inspiration number (198 etc.)
             if input('hit "y" for save, any key to cancel:') == 'y':
                 save = bot.find_element(
                     By.CSS_SELECTOR, 'button[type="submit"]').click()
 
-    def function(self):
-        bot = self.bot
+    def get_url(self):
+        """Returns the resolved url of the new inspiration for sharing."""
+        link = self.bot.current_url
+        slug = link.split('/')[-1]
+        # log.info('inspiration code:', slug)
+        base = 'https://www.lovethework.com/inspiration/'
+        url = base + slug
+        # log.info('resolved url:', url)
+        with requests.Session() as s:
+            res = requests.get(url)
+        return res.url

@@ -1,4 +1,3 @@
-from pprint import pprint
 import click
 import pypandoc
 from pathlib import Path
@@ -126,6 +125,7 @@ def main(infile, access, guest):
         try:
             cms.login()
             cms.inspiration_details()
+            resolved_url = cms.get_url()
             cms.campaign_details()
             echo(click.style("\tFinished correctly", fg="green"))
             input("Finished?")
@@ -133,6 +133,7 @@ def main(infile, access, guest):
             raise e  # log.error(e)
             echo(click.style("\tError while running cms", fg="red"))
         finally:
+            echo('Resolved url: ' + click.style(resolved_url, fg="yellow"))
             cms.bot.quit()
             run_cleanup(temp_folder)
     else:

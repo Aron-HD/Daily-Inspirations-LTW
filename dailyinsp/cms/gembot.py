@@ -36,9 +36,7 @@ class GemBot:
     def login(self):
         bot = self.bot
         bot.implicitly_wait(10)
-        time.sleep(2)
         bot.get(self.url)
-        time.sleep(2)
         username = WebDriverWait(bot, 10).until(
             EC.visibility_of_element_located((By.ID, 'okta-signin-username'))
         )
@@ -46,17 +44,13 @@ class GemBot:
             EC.visibility_of_element_located((By.ID, 'okta-signin-password'))
         )
         username.clear()
-        time.sleep(1)
         username.send_keys(self.usr)
-        time.sleep(1)
         password.clear()
-        time.sleep(1)
         password.send_keys(self.pwd)
         WebDriverWait(bot, 5).until(EC.visibility_of_element_located(
             (By.CSS_SELECTOR, 'div[aria-live="polite"]')))
-        time.sleep(3)
         bot.find_element(By.ID, "okta-signin-submit").click()
-        time.sleep(10)
+        time.sleep(10)  # have to enter okta TFA
 
     def inspiration_details(self):
         """Inputs data dictionary extracted from text file into initial form for the New Inspiration."""

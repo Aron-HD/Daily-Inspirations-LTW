@@ -17,3 +17,15 @@ The webdriver submits the data to two forms.
 ### Second Form
 
 <kbd>![New Inspiration Campaign](./static/images/new-inspiration-campaign.png)</kbd>
+
+# Improvements
+
+
+- made ability to pass in directory of zip files so only have to use one cms instance
+
+### ToDo
+
+- fix tick visible box for each when iterating over zip files
+- add clear boxes in cms when making each new inspiration
+- add check links for /talks or /campaigns etc to know which ID to input
+- find way to open access / guest edit each inspiration

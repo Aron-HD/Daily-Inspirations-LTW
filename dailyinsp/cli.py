@@ -71,6 +71,39 @@ def run_cleanup(temp):
     echo('\tRemoved temp dir: ' + click.style(temp, fg='cyan'))
 
 
+def run_process(zipfile, cms, access, guest):
+    '''The process for each zip file, so can be iterated over for all files in directory.'''
+    # unzip file to temp folder
+    temp_folder = extract_zip(Path(zipfile))
+    docx = convert_docx(next(temp_folder.glob('*.docx')))
+    # dictionary of values
+    data = html_data(docx)
+    # add windows path as string
+    data['img_path'] = next(temp_folder.glob('*.jpg')).__str__()
+
+    raw_date = data["insp_day"].title()
+    date = get_date(raw_date)
+    if date:
+        data.update(
+            {"live_day": date.day, "live_month": date.month, "live_year": date.year}
+        )
+        # returns True if saved, else False
+        insp = cms.inspiration_details(data)
+        if insp:
+            resolved_url = cms.get_url()
+            cms.campaign_details(data)
+            echo(click.style("\tFinished correctly", fg="green"))
+            input("Finished?")
+            echo('Resolved url: ' + click.style(resolved_url,
+                                                fg="yellow"))
+        else:
+            echo("Inspiration not saved")
+            pass
+        run_cleanup(temp_folder)
+    else:
+        echo("\tNo live date: " + click.style('Exit', fg="red"))
+
+
 @click.command()
 @click.option(
     "-i",
@@ -88,7 +121,7 @@ def run_cleanup(temp):
     show_default=True,
     type=bool,
     help="Flag True if an open access link is required.",
-)  # <<<<<<< needs to be for each campaign in the inspiration
+)
 @click.option(
     "-g",
     "--guest",
@@ -102,45 +135,27 @@ def main(infile, access, guest):
     echo("\tOpen access: " + click.style(access, fg="green")
          ) if access == True else echo(
         "\tOpen access: " + click.style(access, fg="red"))
-    echo("\tGuest edited: " + click.style(access, fg="green")
+    echo("\tGuest edited: " + click.style(guest, fg="green")
          ) if guest == True else echo(
-        "\tGuest edited: " + click.style(access, fg="red"))
+        "\tGuest edited: " + click.style(guest, fg="red"))
 
-    # unzip file to temp folder
-    temp_folder = extract_zip(Path(infile))
-    docx = convert_docx(next(temp_folder.glob('*.docx')))
-    # dictionary of values
-    data = html_data(docx)
-    # add windows path as string
-    data['img_path'] = next(temp_folder.glob('*.jpg')).__str__()
-
-    raw_date = data["insp_day"].title()
-    date = get_date(raw_date)
-    # date = False
-    if date:
-        data.update(
-            {"live_day": date.day, "live_month": date.month, "live_year": date.year}
-        )
-        cms = GemBot(data=data, open_access=access, guest_edited=guest)
-        try:
-            cms.login()
-            cms.inspiration_details()
-            resolved_url = cms.get_url()
-            cms.campaign_details()
-            echo(click.style("\tFinished correctly", fg="green"))
-            input("Finished?")
-        except Exception as e:
-            raise e  # log.error(e)
-            echo(click.style("\tError while running cms", fg="red"))
-        finally:
-            echo('Resolved url: ' + click.style(resolved_url, fg="yellow"))
-            cms.bot.quit()
-            run_cleanup(temp_folder)
-    else:
-        echo("\tNo live date: " + click.style('Exit', fg="red"))
-
+    # login to cms once
+    cms = GemBot(open_access=access,
+                 guest_edited=guest)
     try:
-        echo("\tRunning cleanup...")
-        run_cleanup(temp_folder)
-    except FileNotFoundError as e:
-        echo("\tCleanup already ran...")
+        cms.login()
+        infile = Path(infile)
+        if infile.is_dir():
+            for z in infile.glob('*.zip'):
+                print(z)
+                run_process(z, cms, access, guest)
+        elif infile.is_file():
+            run_process(infile, cms, access, guest)
+        else:
+            echo("Input must be a folder or a zip file.")
+    except Exception as e:
+        echo(click.style("\tError while running cms", fg="red"))
+        raise e
+    finally:
+        echo("Quit selenium.")
+        cms.bot.quit()

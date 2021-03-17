@@ -28,7 +28,10 @@ class HtmlData:
                 if 'lovethework' in p.a['href']:
                     article["article_link"] = p.a['href']
             elif p.find('strong') and not p.text.endswith('.'):
-                article["article_title"] = p.text.split(' / ')[1]
+                try:
+                    article["article_title"] = p.text.split(' / ')[1]
+                except IndexError as e:
+                    article["article_title"] = p.text
             else:
                 article["article_desc"] = p.text
 

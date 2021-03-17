@@ -20,13 +20,12 @@ chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
 class GemBot:
-    def __init__(self, data, open_access, guest_edited):
+    def __init__(self, open_access, guest_edited):
         self.bot = webdriver.Chrome(
             options=chrome_options,
             # switch to driver/chromedriver.exe with sys path append
             executable_path=r"C:\Users\arondavidson\AppData\Local\Programs\Python\Python37\chromedriver.exe"
         )
-        self.data = data
         self.open_access = open_access
         self.guest_edited = guest_edited
         self.url = 'https://gemini-backend.lovethework.com/cms/inspirations/new'
@@ -47,12 +46,14 @@ class GemBot:
         username.send_keys(self.usr)
         password.clear()
         password.send_keys(self.pwd)
+        time.sleep(2)
         WebDriverWait(bot, 5).until(EC.visibility_of_element_located(
             (By.CSS_SELECTOR, 'div[aria-live="polite"]')))
         bot.find_element(By.ID, "okta-signin-submit").click()
-        time.sleep(10)  # have to enter okta TFA
+        # time.sleep(10)  # have to enter okta TFA
+        input('entered 2fa?')
 
-    def inspiration_details(self):
+    def inspiration_details(self, data):
         """Inputs data dictionary extracted from text file into initial form for the New Inspiration."""
         bot = self.bot
         # find elements
@@ -82,11 +83,11 @@ class GemBot:
             time.sleep(1)
 
         # send / select data
-        title.send_keys(self.data['insp_title'])
-        intro.send_keys(self.data['insp_intro'])
-        y = str(self.data['live_year'])
-        m = str(self.data['live_month'])
-        d = str(self.data['live_day'])
+        title.send_keys(data['insp_title'])
+        intro.send_keys(data['insp_intro'])
+        y = str(data['live_year'])
+        m = str(data['live_month'])
+        d = str(data['live_day'])
         # only select if year doesn't match
         if year.first_selected_option.text != y:
             year.select_by_visible_text(y)
@@ -95,24 +96,28 @@ class GemBot:
         # Choose inspiration image file upload button
         try:
             bot.find_element(By.ID, 'inspiration_image').send_keys(
-                self.data['img_path']
+                data['img_path']
             )
 
             # save details if y
             if input('hit "y" for save, any key to cancel:') == 'y':
                 save = bot.find_element(
                     By.CSS_SELECTOR, 'button[type="submit"]').click()
+                return True
+            else:
+                return False
         except InvalidArgumentException as e:
             print(e)
             print(
                 'error while finding image and saving...\nexiting without saving inspiration...'
             )
+            return False
 
-    def campaign_details(self):
+    def campaign_details(self, data):
         """Inputs data into subsequent form for each article object within the collection."""
         bot = self.bot
         time.sleep(3)
-        for article in self.data['articles']:
+        for article in data['articles']:
             campaign_id = bot.find_element(
                 By.ID, 'inspiration_campaign_campaign_id')
             campaign_id.clear()

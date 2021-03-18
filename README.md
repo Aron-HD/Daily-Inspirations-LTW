@@ -20,7 +20,6 @@ The webdriver submits the data to two forms.
 
 # Improvements
 
-
 - made ability to pass in directory of zip files so only have to use one cms instance
 
 ### ToDo
@@ -29,3 +28,4 @@ The webdriver submits the data to two forms.
 - add clear boxes in cms when making each new inspiration
 - add check links for /talks or /campaigns etc to know which ID to input
 - find way to open access / guest edit each inspiration
+- set driver to build properly

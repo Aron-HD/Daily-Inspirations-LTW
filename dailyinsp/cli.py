@@ -79,7 +79,10 @@ def run_process(zipfile, cms, access, guest):
     # dictionary of values
     data = html_data(docx)
     # add windows path as string
-    data['img_path'] = next(temp_folder.glob('*.jpg')).__str__()
+    try:
+        data['img_path'] = next(temp_folder.glob('*.jpg')).__str__()
+    except StopIteration as e:
+        data['img_path'] = next(temp_folder.glob('*.png')).__str__()
 
     raw_date = data["insp_day"].title()
     date = get_date(raw_date)

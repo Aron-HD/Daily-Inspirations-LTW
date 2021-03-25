@@ -28,7 +28,7 @@ class GemBot:
         )
         self.open_access = open_access
         self.guest_edited = guest_edited
-        self.url = 'https://gemini-backend.lovethework.com/cms/inspirations/new'
+        self.url = 'https://gemini-backend.lovethework.com/cms/inspirations'
         self.usr = credentials.login['EMAIL_ADDRESS']
         self.pwd = credentials.login['PASSWORD']
 
@@ -36,6 +36,7 @@ class GemBot:
         bot = self.bot
         bot.implicitly_wait(10)
         bot.get(self.url)
+
         username = WebDriverWait(bot, 10).until(
             EC.visibility_of_element_located((By.ID, 'okta-signin-username'))
         )
@@ -57,7 +58,7 @@ class GemBot:
         """Inputs data dictionary extracted from text file into initial form for the New Inspiration."""
         bot = self.bot
         # find elements
-
+        bot.get(self.url + "/new")
         # Title and Introduction
         title = WebDriverWait(bot, 15).until(
             EC.visibility_of_element_located((By.ID, 'inspiration_title'))
